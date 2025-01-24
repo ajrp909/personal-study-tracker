@@ -20,7 +20,7 @@ class Question(BaseModel):
 
 questions = csv_formatter(CSV_FILEPATH)
 
-if questions:
+if not questions:
     new_csv(CSV_FILEPATH, NUMBER_OF_QUESTIONS)
     questions = csv_formatter(CSV_FILEPATH)
 
