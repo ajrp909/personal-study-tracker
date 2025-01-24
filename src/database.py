@@ -22,3 +22,14 @@ def drop_database(DATABASE_URL):
         with conn.cursor() as cursor:
             cursor.execute("""drop table questions;
                            """)
+            
+def update_database(DATABASE_URL, question_update_list):
+    question_id, difficulty, correct, date = question_update_list
+    with psycopg2.connect(DATABASE_URL, sslmode='require') as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(f"""update questions
+                           set difficulty = {difficulty},
+                           correct = {correct},
+                           date = {date}
+                            where question_id = {question_id}
+                            """)

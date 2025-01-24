@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from src.utils import create_questions_string
 
-from src.database import create_database, seed_database, drop_database
+from src.database import create_database, seed_database, drop_database, update_database
 
 load_dotenv()
 
@@ -59,13 +59,13 @@ async def root():
 
 # @app.get("/questions")
 # async def question_summary():
-    # questions_remaining = len([question for question in questions if question.split(",")[1] == "0"])
-    # time_remaining = EXAM_DATE - datetime.now()
-    # days_left = time_remaining.days
-    # questions_per_day = questions_remaining//days_left + 1
-    # return (f"questions_remaining: {questions_remaining}",
-    #         f"days left: {days_left}",
-    #         f"questions per day: {questions_per_day}")
+#     questions_remaining = len([question for question in questions if question.split(",")[1] == "0"])
+#     time_remaining = EXAM_DATE - datetime.now()
+#     days_left = time_remaining.days
+#     questions_per_day = questions_remaining//days_left + 1
+#     return (f"questions_remaining: {questions_remaining}",
+#             f"days left: {days_left}",
+#             f"questions per day: {questions_per_day}")
 
 # @app.get("/question/{question_id}")
 # async def question_id_call(question_id: int):
@@ -73,11 +73,10 @@ async def root():
 #         return questions[question_id]
 #     raise HTTPException(status_code=404, detail="Question {question_id} not found")
 
-# @app.put("/question/{question_id}/{difficulty}/{correct}")
-# async def question_update(question_id: int, difficulty: int, correct: bool):
-#     if 0 < question_id < len(questions):
-#         question_update_string = f"{question_id},{difficulty},{correct},{datetime.now()}"
-#         questions[question_id] = question_update_string
-#         update_csv(CSV_FILEPATH, questions)
-#         return f"Question {question_id} was updated to {question_update_string}"
-#     raise HTTPException(status_code=404, detail="Question {question_id} not found")
+@app.put("/question/{question_id}/{difficulty}/{correct}")
+async def question_update(question_id: int, difficulty: int, correct: bool):
+    if 0 < question_id <= NUMBER_OF_QUESTIONS:
+        question_update_list = [question_id,difficulty,correct,datetime.now()]
+        update_database(DATABASE_URL, question_update_list)
+        return f"Question {question_id} was updated to {question_update_list[1:]}"
+    raise HTTPException(status_code=404, detail="Question {question_id} not found")
