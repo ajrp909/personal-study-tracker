@@ -9,3 +9,11 @@ def new_csv(filepath, number_of_questions):
             line = f"{i},0,None,None\n"
             file.write(line)
         file.write(f"{number_of_questions},0,None,None")
+
+def update_csv(filepath, to_update):
+    with open(filepath, "w", encoding='utf-8') as file:
+        for i, v in enumerate(to_update):
+            if i != len(to_update) - 1:
+                file.write(v + "\n")
+            else:
+                file.write(v)
