@@ -2,8 +2,6 @@ import os
 
 import sys
 
-import psycopg2
-
 from fastapi import FastAPI, HTTPException
 
 from pydantic import BaseModel
