@@ -6,7 +6,7 @@ from datetime import datetime
 
 from src.utils import new_csv, csv_formatter, update_csv
 
-CSV_FILEPATH = "src/questions.csv"
+CSV_FILEPATH = "./src/questions.csv"
 
 NUMBER_OF_QUESTIONS = 500
 
