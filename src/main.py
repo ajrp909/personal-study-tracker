@@ -1,5 +1,7 @@
 import os
 
+import sys
+
 import psycopg2
 
 from fastapi import FastAPI, HTTPException
@@ -10,7 +12,9 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
-from src.utils import new_csv, csv_formatter, update_csv
+from src.utils import create_questions_string
+
+from src.database import create_database, seed_database, drop_database
 
 load_dotenv()
 
@@ -20,35 +24,31 @@ NUMBER_OF_QUESTIONS: int = 500
 
 EXAM_DATE: datetime = datetime.strptime('5 Jun 2025','%d %b %Y')
 
-questions_string = ""
-for i in range(1, NUMBER_OF_QUESTIONS):
-    questions_string += f"({i}),"
-questions_string += f"({NUMBER_OF_QUESTIONS})"
+questions_string = create_questions_string(NUMBER_OF_QUESTIONS)
+
+if "drop" in sys.argv:
+    if input("return 'Y' to confirm table deletion: ").lower() == 'y':
+        try:
+            drop_database(DATABASE_URL)
+        except:
+            print("exception1")
+if "seed" in sys.argv:
+    try:
+        create_database(DATABASE_URL)
+    except:
+        print("exception2")
+    try:
+        seed_database(DATABASE_URL,questions_string)
+    except:
+        print("exception3")
+if len(sys.argv) != 1:
+    sys.exit()
 
 class Question(BaseModel):
     question_id: int
     difficulty: int
     correct: bool
     date: datetime
-
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-cursor = conn.cursor()
-
-cursor.execute("""create table if not exists public.questions (
-    question_id integer primary key,
-    difficulty integer not null default 0,
-    correct boolean,    
-    date date);
-               """
-               )
-conn.commit()
-
-cursor.execute(f"""insert into public.questions
-                values {questions_string};
-""")
-conn.commit()
-cursor.close()
-conn.close()
 
 app = FastAPI()
 
@@ -57,15 +57,15 @@ async def root():
     return "Short question study tracker.\
     difficulty range: 1 is easy 5 is hard 0 is unattempted"
 
-@app.get("/questions")
-async def question_summary():
-    questions_remaining = len([question for question in questions if question.split(",")[1] == "0"])
-    time_remaining = EXAM_DATE - datetime.now()
-    days_left = time_remaining.days
-    questions_per_day = questions_remaining//days_left + 1
-    return (f"questions_remaining: {questions_remaining}",
-            f"days left: {days_left}",
-            f"questions per day: {questions_per_day}")
+# @app.get("/questions")
+# async def question_summary():
+    # questions_remaining = len([question for question in questions if question.split(",")[1] == "0"])
+    # time_remaining = EXAM_DATE - datetime.now()
+    # days_left = time_remaining.days
+    # questions_per_day = questions_remaining//days_left + 1
+    # return (f"questions_remaining: {questions_remaining}",
+    #         f"days left: {days_left}",
+    #         f"questions per day: {questions_per_day}")
 
 # @app.get("/question/{question_id}")
 # async def question_id_call(question_id: int):
