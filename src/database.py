@@ -9,7 +9,7 @@ load_dotenv()
 
 TABLE_NAME = "question"
 DATABASE_URL = os.environ['DATABASE_URL']
-DB_CONN = "{DATABASE_URL}, sslmode='require'"
+DB_CONN = f"{DATABASE_URL}"
 
 def sql_create_table():
     """Connects to a database and tries to create a table using the table_name parameter.
@@ -29,6 +29,8 @@ def sql_create_table():
         print(f"{table_name} table already exists.")
 
 def sql_seed_table(questions):
+    """Seeds a new table with expected data to be later updated by the user.
+    """
     try:
         table_name = TABLE_NAME
         query = "insert into {} values (%s)"
@@ -45,6 +47,8 @@ def sql_seed_table(questions):
 
     
 def sql_delete_table():
+    """drops table
+    """
     try:
         query = "drop table {};"
         table_name = TABLE_NAME
@@ -59,46 +63,62 @@ def sql_delete_table():
         print(f"{table_name} did not exist.")
 
 def sql_count_total():
-    query = "select count(*) from {};"
-    table_name = TABLE_NAME
-    conn = psycopg2.connect(DB_CONN)
-    cur = conn.cursor()
-    cur.execute(sql.SQL(query).format(sql.Identifier(table_name)))
-    result = cur.fetchone()
-    cur.close()
-    conn.close()
-    return result
+    try:
+        query = "select count(*) from {};"
+        table_name = TABLE_NAME
+        conn = psycopg2.connect(DB_CONN)
+        cur = conn.cursor()
+        cur.execute(sql.SQL(query).format(sql.Identifier(table_name)))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        print("count successful.")
+        return result
+    except Exception:
+        print("count unsuccessful.")
 
 def sql_count_remaining():
-    query = "select count(*) from {} where difficulty = 0;"
-    table_name = TABLE_NAME
-    conn = psycopg2.connect(DB_CONN)
-    cur = conn.cursor()
-    cur.execute(sql.SQL(query).format(sql.Identifier(table_name)))
-    result = cur.fetchone()
-    cur.close()
-    conn.close()
-    return result
+    try:
+        query = "select count(*) from {} where difficulty = 0;"
+        table_name = TABLE_NAME
+        conn = psycopg2.connect(DB_CONN)
+        cur = conn.cursor()
+        cur.execute(sql.SQL(query).format(sql.Identifier(table_name)))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        print("count successful.")
+        return result
+    except Exception:
+        print("count unsuccessful.")
 
 def sql_get_row(row_id):
-    query = "select * from {} where question_id = %s;"
-    placeholder = (row_id,)
-    table_name = TABLE_NAME
-    conn = psycopg2.connect(DB_CONN)
-    cur = conn.cursor()
-    cur.execute(sql.SQL(query).format(sql.Identifier(table_name)), placeholder)
-    result = cur.fetchone()
-    cur.close()
-    conn.close()
-    return result
+    try:
+        query = "select * from {} where question_id = %s;"
+        placeholder = (row_id,)
+        table_name = TABLE_NAME
+        conn = psycopg2.connect(DB_CONN)
+        cur = conn.cursor()
+        cur.execute(sql.SQL(query).format(sql.Identifier(table_name)), placeholder)
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        print("row retireved.")
+        return result
+    except Exception:
+        print("row retrival unsuccessful.")
 
 def sql_update(row_id, difficulty, correct):
-    query = "update {} set difficulty = %s, correct = %s, date = %s where question_id = %s;"
-    table_name = TABLE_NAME
-    placeholder = (difficulty, correct, datetime.now(), row_id)
-    conn = psycopg2.connect(DB_CONN)
-    cur = conn.cursor()
-    cur.execute(sql.SQL(query).format(sql.Identifier(table_name)), placeholder)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        query = "update {} set difficulty = %s, correct = %s, date = %s where question_id = %s;"
+        table_name = TABLE_NAME
+        placeholder = (difficulty, correct, datetime.now(), row_id)
+        conn = psycopg2.connect(DB_CONN)
+        cur = conn.cursor()
+        cur.execute(sql.SQL(query).format(sql.Identifier(table_name)), placeholder)
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("record updated.")
+    except Exception:
+        print("update unsuccessful.")
