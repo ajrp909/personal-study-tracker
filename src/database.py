@@ -94,7 +94,7 @@ def sql_count_remaining():
 
 def sql_get_row(row_id):
     try:
-        query = "select * from {} where question_id = %s;"
+        query = "select * from {} where question_id = %s;"  
         placeholder = (row_id,)
         table_name = TABLE_NAME
         conn = psycopg2.connect(DB_CONN)
